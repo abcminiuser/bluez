@@ -1597,7 +1597,11 @@ static bool parse_chrc_flags(DBusMessageIter *array, uint8_t *props,
 {
 	const char *flag;
 
-	*props = *ext_props = 0;
+	if (!props || ! ext_props)
+		return false;
+
+	*props = 0;
+	*ext_props = 0;
 
 	do {
 		if (dbus_message_iter_get_arg_type(array) != DBUS_TYPE_STRING)
@@ -1672,6 +1676,9 @@ static bool parse_desc_flags(DBusMessageIter *array, uint32_t *perm,
 						bool *req_prep_authorization)
 {
 	const char *flag;
+
+	if (!perm)
+		return false;
 
 	*perm = 0;
 
