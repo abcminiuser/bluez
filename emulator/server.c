@@ -33,8 +33,6 @@
 #include "btdev.h"
 #include "server.h"
 
-#define uninitialized_var(x) x = x
-
 struct server {
 	enum server_type type;
 	uint16_t id;
@@ -197,7 +195,7 @@ static void server_accept_callback(int fd, uint32_t events, void *user_data)
 {
 	struct server *server = user_data;
 	struct client *client;
-	enum btdev_type uninitialized_var(type);
+	enum btdev_type type;
 
 	if (events & (EPOLLERR | EPOLLHUP)) {
 		mainloop_remove_fd(server->fd);
@@ -231,6 +229,11 @@ static void server_accept_callback(int fd, uint32_t events, void *user_data)
 		break;
 	case SERVER_TYPE_MONITOR:
 		goto done;
+	default:
+		printf("Unknown btdev type %d\n", server->type);
+		close(client->fd);
+		free(client);
+		return;
 	}
 
 	client->btdev = btdev_create(type, server->id);

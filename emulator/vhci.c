@@ -29,8 +29,6 @@
 #include "btdev.h"
 #include "vhci.h"
 
-#define uninitialized_var(x) x = x
-
 struct vhci {
 	enum vhci_type type;
 	int fd;
@@ -85,8 +83,8 @@ static void vhci_read_callback(int fd, uint32_t events, void *user_data)
 struct vhci *vhci_open(enum vhci_type type)
 {
 	struct vhci *vhci;
-	enum btdev_type uninitialized_var(btdev_type);
-	unsigned char uninitialized_var(ctrl_type);
+	enum btdev_type btdev_type;
+	unsigned char ctrl_type;
 	unsigned char setup_cmd[2];
 	static uint8_t id = 0x23;
 
@@ -107,6 +105,9 @@ struct vhci *vhci_open(enum vhci_type type)
 		btdev_type = BTDEV_TYPE_AMP;
 		ctrl_type = HCI_AMP;
 		break;
+	default:
+		printf("Unknown vhci type %d\n", type);
+		return NULL;
 	}
 
 	vhci = malloc(sizeof(*vhci));

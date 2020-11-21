@@ -32,8 +32,6 @@
 #include "btdev.h"
 #include "serial.h"
 
-#define uninitialized_var(x) x = x
-
 struct serial {
 	enum serial_type type;
 	uint16_t id;
@@ -147,7 +145,7 @@ again:
 
 static void open_pty(struct serial *serial)
 {
-	enum btdev_type uninitialized_var(type);
+	enum btdev_type type;
 
 	serial->fd = posix_openpt(O_RDWR | O_NOCTTY);
 	if (serial->fd < 0) {
@@ -186,6 +184,9 @@ static void open_pty(struct serial *serial)
 	case SERIAL_TYPE_AMP:
 		type = BTDEV_TYPE_AMP;
 		break;
+	default:
+		printf("Unknown serial type %d\n", serial->type);
+		return;
 	}
 
 	serial->btdev = btdev_create(type, serial->id);
@@ -210,7 +211,6 @@ static void open_pty(struct serial *serial)
 struct serial *serial_open(enum serial_type type)
 {
 	struct serial *serial;
-	enum btdev_type uninitialized_var(dev_type);
 
 	serial = malloc(sizeof(*serial));
 	if (!serial)
